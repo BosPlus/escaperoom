@@ -1,4 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Escaperoom
-Exec=lxterminal -e /opt/escaperoom/bin/escaperoom
