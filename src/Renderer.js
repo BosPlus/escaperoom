@@ -73,6 +73,7 @@ export default class Renderer {
     this.onResize = this.onResize.bind(this);
     this.render = this.render.bind(this);
     this.onLoggedIn = this.onLoggedIn.bind(this);
+    this.onDecodingUnlocked = this.onDecodingUnlocked.bind(this);
     this.toggleBlink = this.toggleBlink.bind(this);
   }
 
@@ -103,7 +104,9 @@ export default class Renderer {
     Object.values(this.windows).forEach(window => {
       window.on('requestRender', this.render);
     });
+
     this.windows.login.on('loggedIn', this.onLoggedIn);
+    this.windows.legende.on('decodingUnlocked', this.onDecodingUnlocked);
 
     this.elem.appendChild(this.elemVideoWrapper);
     this.elemVideo.play();
@@ -121,6 +124,10 @@ export default class Renderer {
     this.render();
   }
 
+  onDecodingUnlocked()
+  {
+    this.windows.login._enableCredentialsInput();
+  };
 
   onLoggedIn() {
     if(this.state === State.FINISHED) {

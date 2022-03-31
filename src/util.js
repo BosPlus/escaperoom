@@ -1,3 +1,36 @@
+const KEY_MAP = {
+  NumLock: 'K',
+  NumpadDivide: 'S',
+  NumpadMultiply: 'M',
+  NumpadSubtract: 'U',
+  NumpadAdd: 'A',
+  NumpadDecimal: 'T',
+  Backspace: 'Backspace',
+
+  Numpad0: 'N',
+  Numpad1: 'X',
+  Numpad2: 'W',
+  Numpad3: 'L',
+  Numpad4: 'Z',
+  Numpad5: 'D',
+  Numpad6: 'G',
+  Numpad7: 'E',
+  Numpad8: 'Y',
+  Numpad9: 'P',
+
+  // This is for when NumLock is disabled
+  Insert: 'N',
+  Delete: 'T',
+  End: 'X',
+  ArrowDown: 'W',
+  PageDown: 'L',
+  ArrowLeft: 'Z',
+  NumpadClear: 'D',
+  ArrowRight: 'G',
+  Home: 'E',
+  ArrowUp: 'Y',
+  PageUp: 'P',
+};
 export function getCharDimensions(elem) {
   return [
     getCharDimension(elem, ' ', 'offsetWidth'),
@@ -89,4 +122,8 @@ export function boxify(text) {
 
 export function arePermutations(str1, str2) {
   return str1.split('').sort().join('') === str2.split('').sort().join('');
+}
+
+export function mapKey(input) {
+  return KEY_MAP[input];
 }

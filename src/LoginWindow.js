@@ -1,44 +1,10 @@
 import Window from './Window';
 import * as util from './util';
 
-
 const PROGRESS_START = 6;
 const PROGRESS_END = 99;
 const PROGRESS_DURATION = 80 * 60 * 1000;
 
-const KEY_MAP = {
-  NumLock: 'K',
-  NumpadDivide: 'S',
-  NumpadMultiply: 'M',
-  NumpadSubtract: 'U',
-  NumpadAdd: 'A',
-  NumpadDecimal: 'T',
-  Backspace: 'Backspace',
-
-  Numpad0: 'N',
-  Numpad1: 'X',
-  Numpad2: 'W',
-  Numpad3: 'L',
-  Numpad4: 'Z',
-  Numpad5: 'D',
-  Numpad6: 'G',
-  Numpad7: 'E',
-  Numpad8: 'Y',
-  Numpad9: 'P',
-
-  // This is for when NumLock is disabled
-  Insert: 'N',
-  Delete: 'T',
-  End: 'X',
-  ArrowDown: 'W',
-  PageDown: 'L',
-  ArrowLeft: 'Z',
-  NumpadClear: 'D',
-  ArrowRight: 'G',
-  Home: 'E',
-  ArrowUp: 'Y',
-  PageUp: 'P',
-};
 const CREDENTIALS = {
   username: 'EWASTE',
   password: 'NXMDPK',
@@ -53,7 +19,6 @@ const RETRY_TIMEOUT = 2 * 60 * 1000;
 const CURSOR_BLINK_INTERVAL = 1000;
 const PROGRESS_BLINK_INTERVAL = 200;
 const PROGRESS_BLINK_START = 80;
-
 
 export default class LoginWindow extends Window {
   constructor() {
@@ -73,10 +38,8 @@ export default class LoginWindow extends Window {
     this.blinkCursor = false;
     this.blinkProgress = false;
 
-    window.addEventListener('keydown', this._onKeyDown);
-    this.blinkCursorInterval = setInterval(this._toggleBlinkCursor, CURSOR_BLINK_INTERVAL);
-    this.blinkProgressInterval = setInterval(this._toggleBlinkProgress, PROGRESS_BLINK_INTERVAL);
   }
+ 
 
   _bind() {
     super._bind();
@@ -110,11 +73,13 @@ export default class LoginWindow extends Window {
 
     let focus = this.focus;
     let value = this[focus];
-    let input = KEY_MAP[event.code];
+    debugger;
+    let input = util.mapKey(event.code);
     // Uncomment to be able to type in the credentials with a regular keyboard.
     // if(event.key.length === 1) {
     //   input = event.key.toUpperCase();
     // }
+
 
     if(input === 'Backspace') {
       value = value.substring(0, value.length - 1);
@@ -256,5 +221,11 @@ export default class LoginWindow extends Window {
       + (focus && this.blinkCursor ? '█' : '░')
       + '░'.repeat(fieldWidth - value.length - 1)
     );
+  }
+
+  _enableCredentialsInput(){
+    window.addEventListener('keydown', this._onKeyDown);
+    this.blinkCursorInterval = setInterval(this._toggleBlinkCursor, CURSOR_BLINK_INTERVAL);
+    this.blinkProgressInterval = setInterval(this._toggleBlinkProgress, PROGRESS_BLINK_INTERVAL);    
   }
 }

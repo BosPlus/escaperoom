@@ -21,6 +21,11 @@ const TEXT_LOCKED = [
   'TABLE',
   'LOCKED',
 ];
+
+
+
+const CURSOR_BLINK_INTERVAL = 1000;
+const ELEMENT = 'SN';
 const TABLE_WIDTH = 10;
 
 
@@ -29,16 +34,21 @@ export default class TableWindow extends Window {
     super();
 
     this.locked = true;
+    this.value = '';
+    this.blinkCursor = false;
 
     this.disabledUntil = Date.now();
     this.countdownInterval = null;
 
     window.addEventListener('keydown', this._onKeyDown);
+    this.blinkCursorInterval = setInterval(this._toggleBlinkCursor, CURSOR_BLINK_INTERVAL);
   }
 
   _bind() {
     this._onKeyDown = this._onKeyDown.bind(this);
     this._countdown = this._countdown.bind(this);
+    this._toggleBlinkCursor = this._toggleBlinkCursor.bind(this);
+    this._generateInput = this._generateInput.bind(this);
   }
 
 
@@ -57,20 +67,30 @@ export default class TableWindow extends Window {
       return;
     }
 
-    if(event.altKey && event.key === 'l') {
+    let input = util.mapKey(event.code);
+    if(input === 'Backspace') {
+      this.value = this.value.substring(0, this.value.length - 1);
+    } else if(input) {
+      this.value += input;
+    }
+
+    if(this.value == ELEMENT) {
       SUCCESS.play();
       this.locked = false;
       window.removeEventListener('keydown', this._onKeyDown);
+      this.emit('decodingUnlocked');
       this.requestRender();
 
-    } else if(event.altKey && event.key === 'k') {
+    } else if(this.value.length == ELEMENT.length) {
       ERROR.play();
       this.disabledUntil = Date.now() + RETRY_TIMEOUT;
       if(!this.countdownInterval) {
         this.countdownInterval = setInterval(this._countdown, 1000);
       }
+      this.value = '';
       this.requestRender();
     }
+
   }
 
 
@@ -101,18 +121,19 @@ export default class TableWindow extends Window {
       message = ['', ''];
     } else if(!this.disabled) {
       message = [
-        'Scan your badge to unlock.',
+        'Enter element to unlock: ' + this._generateInput(),
         ''
       ];
+
     } else {
       message = [
-        'Unauthorized badge detected.',
-        'Badge scanner disabled for '
+        'Incorrect element.',
+        'Keyboard locked for '
         + Math.floor((this.disabledUntil - Date.now()) / 1000) + 's...'
       ];
     }
 
-
+    
     let text = [
       '┌─────┬──' + '─'.repeat(TABLE_WIDTH) + '──┐',
       '│     │  ' + ' '.repeat(TABLE_WIDTH) + '  │',
@@ -123,5 +144,22 @@ export default class TableWindow extends Window {
     ].concat(message));
 
     return text;
+  }
+
+  _generateInput()
+  {
+    if(this.value.length == 2)
+      return this.value;
+    return (
+      this.value
+      + (this.blinkCursor ? '█' : '░')
+      + '░'.repeat(2 - this.value.length - 1)
+    );
+
+  }
+
+  _toggleBlinkCursor() {
+    this.blinkCursor = !this.disabled && !this.blinkCursor;
+    this.requestRender();
   }
 }
