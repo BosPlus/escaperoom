@@ -2,10 +2,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require('webpack');
-
+const path = require('path');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
 
   devtool: 'source-map',
   entry: {
@@ -62,6 +62,6 @@ module.exports = {
 
   output: {
     filename: 'assets/js/[name].js',
-    path: '/code/dist',
+    path: path.resolve(__dirname, 'dist'),
   },
 };

@@ -1,7 +1,7 @@
-cd "c:\github\escaperoom"
+start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --kiosk "C:\github\escaperoom\dist\index.html" --edge-kiosk-type=fullscreen --no-first-run
 
-REM set NODE_OPTIONS=--openssl-legacy-provider
-start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" http://localhost:8081 --start-fullscreen --no-first-run
-npm run start:dev
+Rem start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" "C:\github\escaperoom\dist\index.html" --start-fullscreen --no-first-run
+
+
 
 
