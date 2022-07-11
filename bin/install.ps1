@@ -3,8 +3,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 refreshenv
 choco install git -y
 
-choco install npm -y
-
 refreshenv
 
 mkdir c:\github
