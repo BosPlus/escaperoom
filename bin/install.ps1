@@ -13,6 +13,6 @@ Set-Location "c:\github\"
 git clone https://github.com/BosPlus/escaperoom.git
 
 Copy-Item -Path "C:\github\escaperoom\bin\start escaperoom.lnk" -Destination "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
-Copy-Item -Path "C:\github\escaperoom\bin\update escaperoom.lnk" -Destination [Environment]::GetFolderPath("Desktop")
-Copy-Item -Path "C:\github\escaperoom\bin\start escaperoom.lnk" -Destination [Environment]::GetFolderPath("Desktop")
+Copy-Item -Path "C:\github\escaperoom\bin\update escaperoom.lnk" -Destination "c:\Users\escaperoom\Desktop"
+Copy-Item -Path "C:\github\escaperoom\bin\start escaperoom.lnk" -Destination "c:\Users\escaperoom\Desktop"
 
