@@ -38,6 +38,8 @@ export default class LoginWindow extends Window {
     this.blinkCursor = false;
     this.blinkProgress = false;
 
+    this.blinkProgressInterval = setInterval(this._toggleBlinkProgress, PROGRESS_BLINK_INTERVAL); 
+
   }
  
 
@@ -73,7 +75,6 @@ export default class LoginWindow extends Window {
 
     let focus = this.focus;
     let value = this[focus];
-    debugger;
     let input = util.mapKey(event.code);
     // Uncomment to be able to type in the credentials with a regular keyboard.
     // if(event.key.length === 1) {
@@ -128,6 +129,7 @@ export default class LoginWindow extends Window {
 
   _toggleBlinkProgress() {
     if(!this.shouldBlinkProgress) {
+      this.requestRender();
       return;
     }
     this.blinkProgress = !this.blinkProgress;
@@ -147,7 +149,7 @@ export default class LoginWindow extends Window {
   }
 
 
-  _renderProgress(width) {
+  _renderProgress(width) {    
     let text = [
       'UPDATING SYSTEM...',
       '──────────────────',
@@ -225,7 +227,6 @@ export default class LoginWindow extends Window {
 
   _enableCredentialsInput(){
     window.addEventListener('keydown', this._onKeyDown);
-    this.blinkCursorInterval = setInterval(this._toggleBlinkCursor, CURSOR_BLINK_INTERVAL);
-    this.blinkProgressInterval = setInterval(this._toggleBlinkProgress, PROGRESS_BLINK_INTERVAL);    
+    this.blinkCursorInterval = setInterval(this._toggleBlinkCursor, CURSOR_BLINK_INTERVAL);       
   }
 }
