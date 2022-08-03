@@ -2,8 +2,8 @@ import Window from './Window';
 import * as util from './util';
 
 const PROGRESS_START = 6;
-const PROGRESS_END = 99;
-const PROGRESS_DURATION = 80 * 60 * 1000;
+const PROGRESS_END = 100;
+const PROGRESS_DURATION = 70 * 60 * 1000;
 
 const CREDENTIALS = {
   username: 'EWASTE',
@@ -39,7 +39,6 @@ export default class LoginWindow extends Window {
     this.blinkProgress = false;
 
     this.blinkProgressInterval = setInterval(this._toggleBlinkProgress, PROGRESS_BLINK_INTERVAL); 
-
   }
  
 

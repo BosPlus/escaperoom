@@ -21,8 +21,8 @@ const State = Object.freeze({
   FINISHED: 'finished',
 });
 
-const END_WARNING_TIMESTAMP = 75 * 60 * 1000;
-const END_LOST_TIMESTAMP = 80 * 60 * 1000;
+const END_WARNING_TIMESTAMP = 65 * 60 * 1000;
+const END_LOST_TIMESTAMP = 70 * 60 * 1000;
 
 
 export default class Renderer {
@@ -41,6 +41,7 @@ export default class Renderer {
       [State.INITIALIZING]: this.renderInitializing.bind(this),
       [State.RUNNING]: this.renderMain.bind(this),
       [State.FINISHED]: this.renderFinished.bind(this),
+      [State.LOST]: this.renderLost.bind(this)
     };
 
     this.start = null;
@@ -113,7 +114,7 @@ export default class Renderer {
 
     this.state = State.RUNNING;
     setTimeout(() => this.playEndWarning(), END_WARNING_TIMESTAMP);
-    setTimeout(() => this.playEndLost(), END_LOST_TIMESTAMP);
+    setTimeout(() => this.onLost(), END_LOST_TIMESTAMP);
 
     this.render();
   }
@@ -124,13 +125,12 @@ export default class Renderer {
     this.render();
   }
 
-  onDecodingUnlocked()
-  {
+  onDecodingUnlocked() {
     this.windows.login._enableCredentialsInput();
   };
 
   onLoggedIn() {
-    if(this.state === State.FINISHED) {
+    if (this.state === State.FINISHED) {
       return;
     }
 
@@ -147,19 +147,34 @@ export default class Renderer {
     END_WON.play();
   }
 
+  onLost() {
+    if (this.state === State.FINISHED || this.state == State.LOST) {
+      return;
+    }
+
+    this.elem.removeChild(this.elemVideoWrapper);
+    this.elemVideo.pause();
+
+    Object.values(this.windows).forEach(window => {
+      window.destroy();
+    });
+
+    this.state = State.LOST;
+    this.blinkInterval = setInterval(this.toggleBlink, BLINK_INTERVAL_FINISHED);
+
+    END_LOST.loop = true;
+    END_LOST.play();
+
+    this.renderLost();
+
+  }
+
 
   playEndWarning() {
-    if(this.state === State.RUNNING) {
+    if (this.state === State.RUNNING) {
       END_WARNING.play();
     }
   }
-
-  playEndLost() {
-    if(this.state === State.RUNNING) {
-      END_LOST.play();
-    }
-  }
-
 
   toggleBlink() {
     this.blink = !this.blink;
@@ -187,7 +202,7 @@ export default class Renderer {
     Object.keys(this.windows).forEach(windowId => {
       let window = this.windows[windowId];
       let [row, column] = this.positions[windowId];
-      if(cells[row] == null) {
+      if (cells[row] == null) {
         cells[row] = [];
       }
       cells[row][column] = {
@@ -201,26 +216,26 @@ export default class Renderer {
 
     // Calculate the width and height of each cell
     let numRows = cells.length;
-    for(let i = 0; i < numRows; i += 1) {
+    for (let i = 0; i < numRows; i += 1) {
       let row = cells[i];
       let numColumns = row.length;
-      for(let j = 0; j < numColumns; j += 1) {
+      for (let j = 0; j < numColumns; j += 1) {
         let cell = row[j];
-        let baseWidth  = Math.floor((this.width  + 1) / numColumns - 1);
-        let baseHeight = Math.floor((this.height + 1) / numRows    - 1);
-        let numWideColumns = (this.width  + 1) % numColumns;
-        let numWideRows    = (this.height + 1) % numRows;
-        cell.width  = baseWidth  + (j < numWideColumns  ? 1 : 0);
-        cell.height = baseHeight + (i < numWideRows     ? 1 : 0);
+        let baseWidth = Math.floor((this.width + 1) / numColumns - 1);
+        let baseHeight = Math.floor((this.height + 1) / numRows - 1);
+        let numWideColumns = (this.width + 1) % numColumns;
+        let numWideRows = (this.height + 1) % numRows;
+        cell.width = baseWidth + (j < numWideColumns ? 1 : 0);
+        cell.height = baseHeight + (i < numWideRows ? 1 : 0);
       }
     }
 
 
     // Render the text of each cell
-    for(let i = 0; i < numRows; i += 1) {
+    for (let i = 0; i < numRows; i += 1) {
       let row = cells[i];
       let numColumns = row.length;
-      for(let j = 0; j < numColumns; j += 1) {
+      for (let j = 0; j < numColumns; j += 1) {
         let cell = row[j];
         let text = cell.window.render(cell.width, cell.height);
         cell.text = util.padText(text, cell.width, cell.height);
@@ -230,16 +245,16 @@ export default class Renderer {
 
     // Stitch the cells together
     let text = [];
-    for(let i = 0; i < numRows; i += 1) {
+    for (let i = 0; i < numRows; i += 1) {
       let row = cells[i];
-      if(i > 0) {
+      if (i > 0) {
         let rowPrev = cells[i - 1];
         let line = new Array(this.width).fill('═');
         let intersectionsTop = this.getIntersections(rowPrev);
         let intersectionsBottom = this.getIntersections(row);
 
         intersectionsTop.forEach(x => {
-          if(intersectionsBottom.has(x)) {
+          if (intersectionsBottom.has(x)) {
             intersectionsBottom.delete(x);
             line[x] = '╬';
           } else {
@@ -252,7 +267,7 @@ export default class Renderer {
         text.push(line.join(''));
       }
 
-      for(let y = 0; y < cells[i][0].height; y += 1) {
+      for (let y = 0; y < cells[i][0].height; y += 1) {
         let cellLines = cells[i].map(cell => cell.text[y]);
         text.push(cellLines.join('║'));
       }
@@ -267,7 +282,7 @@ export default class Renderer {
   getIntersections(row) {
     let intersections = new Set();
     let x = row[0].width;
-    for(let i = 1; i < row.length; i += 1) {
+    for (let i = 1; i < row.length; i += 1) {
       intersections.add(x);
       x += row[i].width + 1;
     }
@@ -279,29 +294,38 @@ export default class Renderer {
     let [row, column] = this.positions.video;
     let left = column + 1;
     let top = row + 1;
-    for(let i = 0; i < row; i += 1) {
+    for (let i = 0; i < row; i += 1) {
       top += cells[i].height;
     }
-    for(let i = 0; i < column; i += 1) {
+    for (let i = 0; i < column; i += 1) {
       left += cells[row][i].width;
     }
 
-    let width  = cells[row][column].width  - 2;
+    let width = cells[row][column].width - 2;
     let height = cells[row][column].height - 2;
 
-    let charWidth  = this.elemText.clientWidth  / this.width;
+    let charWidth = this.elemText.clientWidth / this.width;
     let charHeight = this.elemText.clientHeight / this.height;
 
-    this.elemVideoWrapper.style.left   = Math.round(left   * charWidth ) + 'px';
-    this.elemVideoWrapper.style.top    = Math.round(top    * charHeight) + 'px';
-    this.elemVideoWrapper.style.width  = Math.round(width  * charWidth ) + 'px';
+    this.elemVideoWrapper.style.left = Math.round(left * charWidth) + 'px';
+    this.elemVideoWrapper.style.top = Math.round(top * charHeight) + 'px';
+    this.elemVideoWrapper.style.width = Math.round(width * charWidth) + 'px';
     this.elemVideoWrapper.style.height = Math.round(height * charHeight) + 'px';
   }
 
 
   renderFinished() {
     let text = 'UPDATE CANCELLED';
-    if(!this.blink) {
+    if (!this.blink) {
+      text = ' '.repeat(text.length);
+    }
+
+    return util.boxify([text]);
+  }
+
+  renderLost() {
+    let text = 'UPDATE COMPLETED';
+    if (!this.blink) {
       text = ' '.repeat(text.length);
     }
 
