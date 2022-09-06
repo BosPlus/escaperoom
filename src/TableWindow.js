@@ -9,9 +9,9 @@ const ERROR = new Audio(errorUrl);
 const RETRY_TIMEOUT = 2 * 60 * 1000;
 
 const TABLE = {
-  Γ: '957280',
+  Γ: '857092',
   Δ: '507928',
-  Θ: '857092',
+  Θ: '957280',
   Ξ: '802759',
   Σ: '297508',
   Ψ: '597802',
